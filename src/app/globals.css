@@ -1,0 +1,255 @@
+@import "tailwindcss";
+
+/* next-themes writes .dark on <html>, so drive the dark variant from the class. */
+@custom-variant dark (&:where(.dark, .dark *));
+
+/* Direction-aware variants, used where a logical property does not exist
+   (gradient direction, for instance). */
+@custom-variant rtl (&:where([dir="rtl"], [dir="rtl"] *));
+@custom-variant ltr (&:where([dir="ltr"], [dir="ltr"] *));
+
+/* ---------------------------------------------------------------------------
+   Palette, taken from the brand: gold on near-black, gold on warm ivory.
+   One accent for the whole site. --gold always passes WCAG AA as text on its
+   own background; --gold-bright is for rules, gradients and large type only.
+--------------------------------------------------------------------------- */
+:root {
+  --bg: #f7f4ee;
+  --surface: #fffdf9;
+  --surface-2: #efebe2;
+  --line: #e2dcd0;
+  --line-strong: #c7bfaf;
+  --fg: #14120f;
+  --fg-muted: #56514a;
+  --fg-faint: #8c857a;
+
+  --gold: #8a6a10;
+  --gold-bright: #b08d4f;
+  --gold-deep: #6b520a;
+  --on-gold: #fffdf9;
+
+  --shadow-color: 40 34 24;
+
+  /* One radius for the whole site: near-square, architectural. */
+  --radius: 2px;
+
+  /* Latin by default; the Arabic pair takes over under [lang="ar"]. */
+  --font-display-active: var(--font-jost), ui-sans-serif, system-ui, sans-serif;
+  --font-body-active: var(--font-manrope), ui-sans-serif, system-ui, sans-serif;
+}
+
+.dark {
+  --bg: #0a0a0a;
+  --surface: #101010;
+  --surface-2: #181816;
+  --line: #242422;
+  --line-strong: #38352f;
+  --fg: #f5f3ee;
+  --fg-muted: #a8a399;
+  --fg-faint: #6f6a61;
+
+  --gold: #c9a227;
+  --gold-bright: #e7ce86;
+  --gold-deep: #8a6b1f;
+  --on-gold: #0a0a0a;
+
+  --shadow-color: 0 0 0;
+}
+
+[lang="ar"] {
+  --font-display-active: var(--font-alexandria), ui-sans-serif, system-ui, sans-serif;
+  --font-body-active: var(--font-plex-ar), ui-sans-serif, system-ui, sans-serif;
+}
+
+@theme inline {
+  --color-bg: var(--bg);
+  --color-surface: var(--surface);
+  --color-surface-2: var(--surface-2);
+  --color-line: var(--line);
+  --color-line-strong: var(--line-strong);
+  --color-fg: var(--fg);
+  --color-fg-muted: var(--fg-muted);
+  --color-fg-faint: var(--fg-faint);
+  --color-gold: var(--gold);
+  --color-gold-bright: var(--gold-bright);
+  --color-gold-deep: var(--gold-deep);
+  --color-on-gold: var(--on-gold);
+
+  --font-display: var(--font-display-active);
+  --font-sans: var(--font-body-active);
+
+  --radius-brand: var(--radius);
+
+  --ease-brand: cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+/* --------------------------------------------------------------------------- */
+
+* {
+  border-color: var(--line);
+}
+
+html {
+  scroll-behavior: smooth;
+  -webkit-text-size-adjust: 100%;
+}
+
+body {
+  background-color: var(--bg);
+  color: var(--fg);
+  font-family: var(--font-body-active);
+  font-feature-settings: "kern", "liga";
+  overflow-x: clip;
+}
+
+::selection {
+  background-color: var(--gold);
+  color: var(--on-gold);
+}
+
+:focus-visible {
+  outline: 2px solid var(--gold);
+  outline-offset: 3px;
+  border-radius: 2px;
+}
+
+/* Arabic reads better with a slightly taller line box. */
+[lang="ar"] body {
+  line-height: 1.85;
+}
+
+/*
+  Arabic is cursive. Letter-spacing pulls joined letters apart and makes words
+  look broken, so every tracking utility is neutralised on the Arabic page.
+  Islands explicitly marked dir="ltr" (the wordmark, phone numbers) keep theirs.
+*/
+[lang="ar"] *:not([dir="ltr"], [dir="ltr"] *) {
+  letter-spacing: 0 !important;
+}
+
+/* ---- Layout shell -------------------------------------------------------- */
+.shell {
+  width: 100%;
+  max-width: 1400px;
+  margin-inline: auto;
+  padding-inline: clamp(1.25rem, 4vw, 3.5rem);
+}
+
+/* ---- Brand type ---------------------------------------------------------- */
+.display {
+  font-family: var(--font-display-active);
+  font-weight: 300;
+  letter-spacing: -0.02em;
+  line-height: 1.06;
+  text-wrap: balance;
+}
+
+[lang="ar"] .display {
+  font-weight: 300;
+  line-height: 1.35;
+}
+
+.gold-text {
+  background: linear-gradient(
+    118deg,
+    var(--gold-deep) 0%,
+    var(--gold-bright) 32%,
+    var(--gold) 58%,
+    var(--gold-bright) 82%,
+    var(--gold-deep) 100%
+  );
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+.gold-rule {
+  background: linear-gradient(
+    90deg,
+    transparent,
+    var(--gold) 22%,
+    var(--gold-bright) 50%,
+    var(--gold) 78%,
+    transparent
+  );
+}
+
+/* ---- Film grain: fixed, non-interactive, never inside a scroller ---------- */
+.grain {
+  position: fixed;
+  inset: 0;
+  z-index: 60;
+  pointer-events: none;
+  opacity: 0.028;
+  mix-blend-mode: overlay;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='180'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+}
+
+/* ---- Scrollbar ----------------------------------------------------------- */
+@supports (scrollbar-width: thin) {
+  html {
+    scrollbar-width: thin;
+    scrollbar-color: var(--line-strong) transparent;
+  }
+}
+
+/* ---- Native control theming (selects, date pickers, form UI) ------------- */
+select,
+input,
+textarea {
+  color-scheme: light;
+}
+
+.dark select,
+.dark input,
+.dark textarea {
+  color-scheme: dark;
+}
+
+/* ---- Entry animation, CSS only -------------------------------------------
+   The hero headline must never depend on JavaScript to become visible: that
+   would delay LCP until hydration and leave the page blank if the bundle
+   fails. Elements are visible by default and only animate when motion is
+   welcome. Stagger with style="--d: 120ms".
+--------------------------------------------------------------------------- */
+.rise {
+  opacity: 1;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .rise {
+    opacity: 0;
+    transform: translateY(24px);
+    animation: rise 0.8s var(--ease-brand) both;
+    animation-delay: var(--d, 0ms);
+  }
+}
+
+@keyframes rise {
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+/* Scroll reveals below the fold are driven by JavaScript. Without it they must
+   still be readable. */
+.no-js-visible {
+  opacity: 1 !important;
+  transform: none !important;
+}
+
+/* ---- Reduced motion ------------------------------------------------------ */
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+    scroll-behavior: auto !important;
+  }
+}
