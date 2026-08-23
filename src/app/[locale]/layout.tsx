@@ -83,7 +83,18 @@ export async function generateMetadata({
       type: "website",
       siteName: "Dark Furniture",
     },
-    icons: { icon: "/favicon.ico" },
+    // All four are the workshop's own monogram, cropped to its ink and
+    // rendered at each size. The tab icons keep their transparent background so
+    // they read on a light and a dark tab bar alike; the home screen icon does
+    // not, because iOS paints transparency black regardless.
+    icons: {
+      icon: [
+        { url: "/favicon.ico", sizes: "16x16 32x32 48x48" },
+        { url: "/icon-192.png", type: "image/png", sizes: "192x192" },
+        { url: "/icon-512.png", type: "image/png", sizes: "512x512" },
+      ],
+      apple: { url: "/apple-icon.png", sizes: "180x180" },
+    },
   };
 }
 

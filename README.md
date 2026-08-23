@@ -85,6 +85,18 @@ thème clair et en thème sombre.
 Le mot « DARK FURNITURE » reste composé en typographie plutôt qu'incrusté dans une
 image : il hérite de la couleur du texte courant et reste net à tous les zooms.
 
+**Icône de l'onglet.** `public/favicon.ico`, `icon-192.png`, `icon-512.png` et
+`apple-icon.png` sont tous dérivés de ce même `logo.png` : le monogramme est
+d'abord recadré sur son encre — sans cette rognure, la marge vide du fichier
+d'origine le réduirait à un point au milieu de l'onglet — puis rendu à chaque
+taille. Le `.ico` contient trois résolutions (16, 32 et 48 px) et garde son fond
+transparent, pour se poser aussi bien sur une barre d'onglets claire que sombre.
+L'icône iOS, elle, est sur fond noir : iOS peint la transparence en noir de toute
+façon, autant que ce soit le noir de la charte. La déclaration est dans
+`generateMetadata`, dans `src/app/[locale]/layout.tsx`.
+
+Si le logo change, ces quatre fichiers sont à régénérer depuis le nouveau PNG.
+
 ### 4. Envoi des e-mails (Resend)
 
 Les demandes partent vers l'adresse définie par `CONTACT_TO`, par défaut
