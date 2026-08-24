@@ -275,9 +275,16 @@ Le second élément ne télécharge rien tant que le premier clip n'a pas commen
 personne ne doit payer deux films pour lire un titre.
 
 Le son est coupé par construction et aucun bouton ne permet de l'activer. C'est
-aussi ce qui autorise le navigateur à lancer la lecture automatiquement. Un
-bouton pause reste accessible en bas du cadre, et `prefers-reduced-motion` met
-la bobine à l'arrêt sur sa première image.
+aussi ce qui autorise le navigateur à lancer la lecture automatiquement.
+
+**Le bouton pause est invisible, mais il est toujours là.** Le hero doit se lire
+comme un film, pas comme un lecteur : le bouton est donc masqué à l'œil
+(`opacity: 0`) plutôt que retiré. Il reste dans le DOM et reste atteignable à la
+touche Tab, où il redevient visible — et c'est ce qui garde la chose honnête.
+`prefers-reduced-motion` arrête la bobine sur sa première image, et ce bouton est
+alors la seule façon de la lancer pour qui le voudrait. `display: none` l'aurait
+sorti de l'ordre de tabulation et aurait enfermé ces visiteurs sur une image
+fixe.
 
 ### L'en-tête au-dessus de la vidéo
 
@@ -371,6 +378,30 @@ qui se trouve à gauche.
 L'arabe étant cursif, une règle globale neutralise tout interlettrage sur la page
 arabe : appliquer `letter-spacing` à l'arabe sépare les lettres liées et casse les
 mots. Seuls les îlots marqués `dir="ltr"` (le logo, les numéros) gardent le leur.
+
+### Thème clair et thème sombre
+
+Le site **ouvre en clair**, et le bouton de l'en-tête bascule entre clair et
+sombre. Le choix est conservé dans le navigateur du visiteur.
+
+C'est un choix, pas un défaut hérité : dans `src/components/providers.tsx`,
+`enableSystem` est explicitement désactivé. Avec un `defaultTheme` fixé il
+n'avait de toute façon aucun effet — le bouton ne pose que « clair » ou
+« sombre », donc « système » était un troisième état que rien n'atteignait.
+
+Conséquence à connaître : un visiteur dont le système est en mode sombre arrive
+quand même sur la version claire. C'est voulu.
+
+Pour repasser le site en sombre par défaut, une seule ligne :
+
+```ts
+defaultTheme="dark"
+```
+
+La couleur de la barre du navigateur (`viewport.themeColor`, dans
+`src/app/[locale]/layout.tsx`) suit ce même choix et vaut le fond clair. Elle
+n'est plus déclinée sur `prefers-color-scheme` : le site ne suivant plus le
+système, cela peignait une barre sombre autour d'une page claire.
 
 ### Polices
 

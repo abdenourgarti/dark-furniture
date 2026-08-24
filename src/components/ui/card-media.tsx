@@ -53,32 +53,42 @@ export function CardMedia({
 }
 
 /**
- * The small round-cornered marker used on the timeline and the pledges: a
- * photograph if the workshop supplied one, the icon otherwise.
+ * The round-cornered marker used on the timeline and the pledges: a photograph
+ * if the workshop supplied one, the icon otherwise.
  *
  * Same reasoning as CardMedia, at a size where a photograph reads as a portrait
  * rather than as a scene — which is why the icon remains a perfectly good
  * answer here, and not a stand-in.
  */
+
+/** The timeline needs a marker sitting on a line; a pledge card needs a figure. */
+const MEDALLION = {
+  md: { box: "h-14 w-14", glyph: 22, sizes: "56px" },
+  lg: { box: "h-20 w-20", glyph: 34, sizes: "80px" },
+} as const;
+
 export function Medallion({
   src,
   alt,
   icon: Glyph,
+  size = "md",
   className = "",
 }: {
   src: string | null;
   alt: string;
   icon: Icon;
+  size?: keyof typeof MEDALLION;
   className?: string;
 }) {
+  const s = MEDALLION[size];
   return (
     <span
-      className={`relative grid h-14 w-14 shrink-0 place-items-center overflow-hidden rounded-brand border border-line bg-bg text-gold ${className}`}
+      className={`relative grid ${s.box} shrink-0 place-items-center overflow-hidden rounded-brand border border-line bg-bg text-gold ${className}`}
     >
       {src ? (
-        <Image src={src} alt={alt} fill sizes="56px" className="object-cover" />
+        <Image src={src} alt={alt} fill sizes={s.sizes} className="object-cover" />
       ) : (
-        <Glyph size={22} weight="light" />
+        <Glyph size={s.glyph} weight="light" />
       )}
     </span>
   );

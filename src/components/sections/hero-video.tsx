@@ -119,11 +119,21 @@ export function HeroVideo({ pauseLabel, playLabel }: { pauseLabel: string; playL
       })}
 
 
+      {/*
+        Out of sight, not out of the page.
+
+        The control is invisible because the hero is meant to read as a film,
+        not as a player. It stays in the DOM and stays reachable with the Tab
+        key, which is what keeps it honest: a visitor whose system asks for
+        less motion gets the reel held on its first frame, and this is the only
+        thing that will start it for them. Opacity hides it from the eye
+        without taking it out of the focus order the way display:none would.
+      */}
       <button
         type="button"
         onClick={() => setOverride(!paused)}
         aria-label={paused ? playLabel : pauseLabel}
-        className="absolute bottom-4 inset-e-4 z-40 grid h-9 w-9 place-items-center rounded-brand border border-white/25 bg-black/35 text-white/85 backdrop-blur-sm transition-colors duration-300 ease-brand hover:border-[#e7ce86] hover:text-[#e7ce86]"
+        className="pointer-events-none absolute bottom-4 inset-e-4 z-40 grid h-9 w-9 place-items-center rounded-brand border border-white/25 bg-black/35 text-white/85 opacity-0 backdrop-blur-sm transition-opacity duration-300 ease-brand focus-visible:pointer-events-auto focus-visible:opacity-100"
       >
         {paused ? <Play size={15} weight="fill" /> : <Pause size={15} weight="fill" />}
       </button>

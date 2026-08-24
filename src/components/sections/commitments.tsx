@@ -53,6 +53,7 @@ export function Commitments({ t }: { t: Dictionary }) {
                       src={photos[item.key]}
                       alt={copy.name}
                       icon={item.icon}
+                      size="lg"
                       className="transition-[transform,border-color] duration-700 ease-brand group-hover:-translate-y-1 group-hover:border-gold/60"
                     />
                     <h3 className="mt-6 font-display text-base font-medium tracking-wide text-fg">

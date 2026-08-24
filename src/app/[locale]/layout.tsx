@@ -98,11 +98,15 @@ export async function generateMetadata({
   };
 }
 
+/*
+  One colour, not a pair keyed on prefers-color-scheme. The site no longer
+  follows the operating system — it opens light and the visitor decides from
+  there — so asking the browser to tint its chrome from the OS setting would
+  paint a dark bar around a light page for anyone whose laptop is in dark mode.
+  This is the page's own opening background.
+*/
 export const viewport = {
-  themeColor: [
-    { media: "(prefers-color-scheme: light)", color: "#f6f6f4" },
-    { media: "(prefers-color-scheme: dark)", color: "#0b0b0c" },
-  ],
+  themeColor: "#f7f4ee",
 };
 
 export default async function LocaleLayout({
