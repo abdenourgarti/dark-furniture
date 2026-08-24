@@ -6,9 +6,9 @@ import { Plate } from "@/components/ui/plate";
 type Key = keyof Dictionary["craft"]["items"];
 
 const STEPS: { key: Key; file: string }[] = [
-  { key: "design", file: "03" },
-  { key: "cut", file: "02" },
-  { key: "assemble", file: "01" },
+  { key: "design", file: "mesure" },
+  { key: "cut", file: "decoupe" },
+  { key: "assemble", file: "assemblage" },
 ];
 
 export function Craft({ t }: { t: Dictionary }) {
