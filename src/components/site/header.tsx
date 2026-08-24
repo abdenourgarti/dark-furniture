@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import Link from "next/link";
+import { usePathname } from "next/navigation";
 import { AnimatePresence, motion, useScroll, useMotionValueEvent } from "motion/react";
 import { List, X } from "@phosphor-icons/react/dist/ssr";
 
@@ -16,6 +17,12 @@ export function Header({ locale, t }: { locale: Locale; t: Dictionary }) {
   const [scrolled, setScrolled] = useState(false);
   const [open, setOpen] = useState(false);
   const { scrollY } = useScroll();
+  const pathname = usePathname();
+
+  // Only the home page puts a film behind the bar, and only until it scrolls.
+  // Everywhere else the bar sits on the page background and keeps its own
+  // colours, which is what makes this a class and not a theme.
+  const onMedia = !scrolled && pathname === `/${locale}`;
 
   // Threshold crossing only, so this sets state a handful of times per session.
   useMotionValueEvent(scrollY, "change", (v) => {
@@ -51,6 +58,7 @@ export function Header({ locale, t }: { locale: Locale; t: Dictionary }) {
         className={[
           "shell relative flex items-center justify-between gap-4 transition-[padding] duration-500 ease-brand",
           scrolled ? "py-3" : "py-4 lg:py-5",
+          onMedia ? "on-media" : "",
         ].join(" ")}
       >
         <div className="flex items-center gap-2 lg:w-56">
@@ -95,7 +103,7 @@ export function Header({ locale, t }: { locale: Locale; t: Dictionary }) {
             animate={{ opacity: 1, height: "auto" }}
             exit={{ opacity: 0, height: 0 }}
             transition={{ duration: 0.35, ease: [0.16, 1, 0.3, 1] }}
-            className="overflow-hidden"
+            className={onMedia ? "on-media overflow-hidden" : "overflow-hidden"}
           >
             <div className="shell flex justify-center pb-5">
               <Link href={`/${locale}`} aria-label={t.brand.name}>

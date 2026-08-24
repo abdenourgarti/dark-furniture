@@ -83,160 +83,228 @@
   --ease-brand: cubic-bezier(0.16, 1, 0.3, 1);
 }
 
-/* --------------------------------------------------------------------------- */
+/* ---------------------------------------------------------------------------
+   Everything below lives in a cascade layer.
 
-* {
-  border-color: var(--line);
-}
+   This matters more than it looks. Tailwind emits its utilities into
+   @layer utilities, and an unlayered rule beats *every* layer no matter how
+   specific the utility is. Written outside a layer, the bare universal reset below
+   would quietly defeat every border-colour utility on the site — border-gold,
+   border-transparent, all of them — and .display would defeat every tracking-,
+   font- and leading- utility used alongside it. Layering them puts the
+   utilities back on top, which is the whole point of having them.
 
-html {
-  scroll-behavior: smooth;
-  -webkit-text-size-adjust: 100%;
-}
-
-body {
-  background-color: var(--bg);
-  color: var(--fg);
-  font-family: var(--font-body-active);
-  font-feature-settings: "kern", "liga";
-  overflow-x: clip;
-}
-
-::selection {
-  background-color: var(--gold);
-  color: var(--on-gold);
-}
-
-:focus-visible {
-  outline: 2px solid var(--gold);
-  outline-offset: 3px;
-  border-radius: 2px;
-}
-
-/* Arabic reads better with a slightly taller line box. */
-[lang="ar"] body {
-  line-height: 1.85;
-}
-
-/*
-  Arabic is cursive. Letter-spacing pulls joined letters apart and makes words
-  look broken, so every tracking utility is neutralised on the Arabic page.
-  Islands explicitly marked dir="ltr" (the wordmark, phone numbers) keep theirs.
-*/
-[lang="ar"] *:not([dir="ltr"], [dir="ltr"] *) {
-  letter-spacing: 0 !important;
-}
-
-/* ---- Layout shell -------------------------------------------------------- */
-.shell {
-  width: 100%;
-  max-width: 1400px;
-  margin-inline: auto;
-  padding-inline: clamp(1.25rem, 4vw, 3.5rem);
-}
-
-/* ---- Brand type ---------------------------------------------------------- */
-.display {
-  font-family: var(--font-display-active);
-  font-weight: 300;
-  letter-spacing: -0.02em;
-  line-height: 1.06;
-  text-wrap: balance;
-}
-
-[lang="ar"] .display {
-  font-weight: 300;
-  line-height: 1.35;
-}
-
-.gold-text {
-  background: linear-gradient(
-    118deg,
-    var(--gold-deep) 0%,
-    var(--gold-bright) 32%,
-    var(--gold) 58%,
-    var(--gold-bright) 82%,
-    var(--gold-deep) 100%
-  );
-  -webkit-background-clip: text;
-  background-clip: text;
-  color: transparent;
-}
-
-.gold-rule {
-  background: linear-gradient(
-    90deg,
-    transparent,
-    var(--gold) 22%,
-    var(--gold-bright) 50%,
-    var(--gold) 78%,
-    transparent
-  );
-}
-
-/* ---- Film grain: fixed, non-interactive, never inside a scroller ---------- */
-.grain {
-  position: fixed;
-  inset: 0;
-  z-index: 60;
-  pointer-events: none;
-  opacity: 0.028;
-  mix-blend-mode: overlay;
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='180'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
-}
-
-/* ---- Scrollbar ----------------------------------------------------------- */
-@supports (scrollbar-width: thin) {
-  html {
-    scrollbar-width: thin;
-    scrollbar-color: var(--line-strong) transparent;
-  }
-}
-
-/* ---- Native control theming (selects, date pickers, form UI) ------------- */
-select,
-input,
-textarea {
-  color-scheme: light;
-}
-
-.dark select,
-.dark input,
-.dark textarea {
-  color-scheme: dark;
-}
-
-/* ---- Entry animation, CSS only -------------------------------------------
-   The hero headline must never depend on JavaScript to become visible: that
-   would delay LCP until hydration and leave the page blank if the bundle
-   fails. Elements are visible by default and only animate when motion is
-   welcome. Stagger with style="--d: 120ms".
+   The reduced-motion block at the very bottom stays unlayered on purpose: it
+   is an escape hatch and it is meant to win.
 --------------------------------------------------------------------------- */
-.rise {
-  opacity: 1;
+
+@layer base {
+  /* Every element starts on the hairline colour, so a bare border utility
+     draws the site rule without having to name it. */
+  * {
+    border-color: var(--line);
+  }
+
+  html {
+    scroll-behavior: smooth;
+    -webkit-text-size-adjust: 100%;
+  }
+
+  body {
+    background-color: var(--bg);
+    color: var(--fg);
+    font-family: var(--font-body-active);
+    font-feature-settings: "kern", "liga";
+    overflow-x: clip;
+  }
+
+  ::selection {
+    background-color: var(--gold);
+    color: var(--on-gold);
+  }
+
+  :focus-visible {
+    outline: 2px solid var(--gold);
+    outline-offset: 3px;
+    border-radius: 2px;
+  }
+
+  /* Arabic reads better with a slightly taller line box. */
+  [lang="ar"] body {
+    line-height: 1.85;
+  }
+
+  /*
+    Arabic is cursive. Letter-spacing pulls joined letters apart and makes words
+    look broken, so every tracking utility is neutralised on the Arabic page.
+    Islands explicitly marked dir="ltr" (the wordmark, phone numbers) keep theirs.
+  */
+  [lang="ar"] *:not([dir="ltr"], [dir="ltr"] *) {
+    letter-spacing: 0 !important;
+  }
+
+  /* ---- Scrollbar ----------------------------------------------------------- */
+  @supports (scrollbar-width: thin) {
+    html {
+      scrollbar-width: thin;
+      scrollbar-color: var(--line-strong) transparent;
+    }
+  }
+
+  /* ---- Native control theming (selects, date pickers, form UI) ------------- */
+  select,
+  input,
+  textarea {
+    color-scheme: light;
+  }
+
+  .dark select,
+  .dark input,
+  .dark textarea {
+    color-scheme: dark;
+  }
+
 }
 
-@media (prefers-reduced-motion: no-preference) {
+@layer components {
+  /* ---- Layout shell -------------------------------------------------------- */
+  .shell {
+    width: 100%;
+    max-width: 1400px;
+    margin-inline: auto;
+    padding-inline: clamp(1.25rem, 4vw, 3.5rem);
+  }
+
+  /* ---- Brand type ---------------------------------------------------------- */
+  .display {
+    font-family: var(--font-display-active);
+    font-weight: 300;
+    letter-spacing: -0.02em;
+    line-height: 1.06;
+    text-wrap: balance;
+  }
+
+  [lang="ar"] .display {
+    font-weight: 300;
+    line-height: 1.35;
+  }
+
+  .gold-text {
+    background: linear-gradient(
+      118deg,
+      var(--gold-deep) 0%,
+      var(--gold-bright) 32%,
+      var(--gold) 58%,
+      var(--gold-bright) 82%,
+      var(--gold-deep) 100%
+    );
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+  }
+
+  .gold-rule {
+    background: linear-gradient(
+      90deg,
+      transparent,
+      var(--gold) 22%,
+      var(--gold-bright) 50%,
+      var(--gold) 78%,
+      transparent
+    );
+  }
+
+  /* ---- Film grain: fixed, non-interactive, never inside a scroller ---------- */
+  .grain {
+    position: fixed;
+    inset: 0;
+    z-index: 60;
+    pointer-events: none;
+    opacity: 0.028;
+    mix-blend-mode: overlay;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='180'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  }
+
+  /* ---- Entry animation, CSS only -------------------------------------------
+     The hero headline must never depend on JavaScript to become visible: that
+     would delay LCP until hydration and leave the page blank if the bundle
+     fails. Elements are visible by default and only animate when motion is
+     welcome. Stagger with style="--d: 120ms".
+  --------------------------------------------------------------------------- */
   .rise {
-    opacity: 0;
-    transform: translateY(24px);
-    animation: rise 0.8s var(--ease-brand) both;
-    animation-delay: var(--d, 0ms);
-  }
-}
-
-@keyframes rise {
-  to {
     opacity: 1;
-    transform: none;
   }
-}
 
-/* Scroll reveals below the fold are driven by JavaScript. Without it they must
-   still be readable. */
-.no-js-visible {
-  opacity: 1 !important;
-  transform: none !important;
+  @media (prefers-reduced-motion: no-preference) {
+    .rise {
+      opacity: 0;
+      transform: translateY(24px);
+      animation: rise 0.8s var(--ease-brand) both;
+      animation-delay: var(--d, 0ms);
+    }
+  }
+
+  @keyframes rise {
+    to {
+      opacity: 1;
+      transform: none;
+    }
+  }
+
+  /* Scroll reveals below the fold are driven by JavaScript. Without it they must
+     still be readable. */
+  .no-js-visible {
+    opacity: 1 !important;
+    transform: none !important;
+  }
+
+  /* ---- Header over the hero film -------------------------------------------
+     The page theme does not apply on top of moving footage: whichever mode the
+     visitor picked, the video underneath is dark. Rather than thread a "light"
+     prop through the header, the logo, the language switch and the theme toggle,
+     the top bar redefines the tokens all of them already read. Everything inside
+     turns light-on-dark, and turns back the moment the page scrolls and the bar
+     takes its solid background.
+
+     Scoped to the bar itself, not to <header>: the mobile menu overlay is a
+     sibling inside the same element and must keep the real page colours.
+  --------------------------------------------------------------------------- */
+  .on-media {
+    --fg: #f3e6c8;
+    --fg-muted: rgba(255, 255, 255, 0.8);
+    --fg-faint: rgba(255, 255, 255, 0.6);
+    --line: rgba(255, 255, 255, 0.24);
+    --line-strong: rgba(255, 255, 255, 0.34);
+    --gold: #e7ce86;
+    --gold-bright: #f4e6b8;
+    --gold-deep: #c9a227;
+    --on-gold: #141210;
+  }
+
+  /* ---- Hero scroll cue ------------------------------------------------------
+     A full-height hero hides the fact that the page continues. One travelling
+     hairline says so without a word to translate.
+  --------------------------------------------------------------------------- */
+  @media (prefers-reduced-motion: no-preference) {
+    .hero-scroll {
+      animation: hero-scroll 2.6s var(--ease-brand) infinite;
+    }
+  }
+
+  @keyframes hero-scroll {
+    0% {
+      opacity: 0;
+      transform: translateY(-60%) scaleY(0.4);
+    }
+    35% {
+      opacity: 1;
+    }
+    100% {
+      opacity: 0;
+      transform: translateY(70%) scaleY(1);
+    }
+  }
+
 }
 
 /* ---- Reduced motion ------------------------------------------------------ */

@@ -118,17 +118,12 @@ export function HeroVideo({ pauseLabel, playLabel }: { pauseLabel: string; playL
         );
       })}
 
-      {/* Grounds the control and keeps the frame from glaring on the light theme. */}
-      <div
-        aria-hidden="true"
-        className="pointer-events-none absolute inset-0 z-20 bg-linear-to-t from-black/40 via-transparent to-black/10"
-      />
 
       <button
         type="button"
         onClick={() => setOverride(!paused)}
         aria-label={paused ? playLabel : pauseLabel}
-        className="absolute bottom-4 end-4 z-20 grid h-9 w-9 place-items-center rounded-brand border border-white/25 bg-black/35 text-white/85 backdrop-blur-sm transition-colors duration-300 ease-brand hover:border-[#e7ce86] hover:text-[#e7ce86]"
+        className="absolute bottom-4 inset-e-4 z-40 grid h-9 w-9 place-items-center rounded-brand border border-white/25 bg-black/35 text-white/85 backdrop-blur-sm transition-colors duration-300 ease-brand hover:border-[#e7ce86] hover:text-[#e7ce86]"
       >
         {paused ? <Play size={15} weight="fill" /> : <Pause size={15} weight="fill" />}
       </button>

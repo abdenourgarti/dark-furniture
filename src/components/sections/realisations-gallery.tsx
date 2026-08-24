@@ -241,7 +241,7 @@ function Lightbox({
           type="button"
           onClick={() => go(-1)}
           aria-label={t.previous}
-          className="absolute start-2 top-1/2 grid h-12 w-12 -translate-y-1/2 place-items-center rounded-brand border border-white/25 bg-black/45 text-white/85 transition-colors duration-300 ease-brand hover:border-[#e7ce86] hover:text-[#e7ce86] sm:start-6"
+          className="absolute inset-s-2 top-1/2 grid h-12 w-12 -translate-y-1/2 place-items-center rounded-brand border border-white/25 bg-black/45 text-white/85 transition-colors duration-300 ease-brand hover:border-[#e7ce86] hover:text-[#e7ce86] sm:inset-s-6"
         >
           {rtl ? <CaretRight size={22} weight="light" /> : <CaretLeft size={22} weight="light" />}
         </button>
@@ -249,7 +249,7 @@ function Lightbox({
           type="button"
           onClick={() => go(1)}
           aria-label={t.next}
-          className="absolute end-2 top-1/2 grid h-12 w-12 -translate-y-1/2 place-items-center rounded-brand border border-white/25 bg-black/45 text-white/85 transition-colors duration-300 ease-brand hover:border-[#e7ce86] hover:text-[#e7ce86] sm:end-6"
+          className="absolute inset-e-2 top-1/2 grid h-12 w-12 -translate-y-1/2 place-items-center rounded-brand border border-white/25 bg-black/45 text-white/85 transition-colors duration-300 ease-brand hover:border-[#e7ce86] hover:text-[#e7ce86] sm:inset-e-6"
         >
           {rtl ? <CaretLeft size={22} weight="light" /> : <CaretRight size={22} weight="light" />}
         </button>

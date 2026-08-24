@@ -61,7 +61,14 @@ premier élément du menu affiche `latitude, longitude`. La carte intégrée et 
 | `public/videos/` | `video 1.mp4` à `video 6.mp4` | fournis |
 | `public/images/logo.png` | le monogramme doré, fond transparent | fourni |
 | `public/images/realisations/<pièce>/` | un sous-dossier par catégorie | partiellement fourni |
-| `public/images/savoir-faire/` | `01.jpg` à `03.jpg` | **à fournir** |
+| `public/images/savoir-faire/` | relevé, découpe, assemblage | fournis |
+| `public/images/services/` | une photo par famille de meubles | facultatif |
+| `public/images/materiaux/` | une photo par panneau | facultatif |
+| `public/images/etapes/` | une photo par étape | facultatif |
+| `public/images/engagements/` | une photo par engagement | facultatif |
+
+Chacun de ces dossiers a son propre README listant les noms de fichiers attendus
+et le cadrage qui rend le mieux.
 
 **Réalisations.** Le contenu de la galerie *est* le contenu des dossiers. Déposez un
 JPEG dans `public/images/realisations/cuisine/`, il apparaît dans la galerie et sous
@@ -73,6 +80,20 @@ leur ordre d'affichage est fixé dans `src/data/realisations.ts`.
 prouvent que la fabrication est réelle. Tant qu'un fichier manque, la vignette
 affiche une plaque « Photo à venir » plutôt qu'une image cassée. Leurs libellés se
 modifient dans les dictionnaires, clé `craft.items`.
+
+**Les quatre dossiers facultatifs.** Services, matériaux, étapes et engagements
+fonctionnent tous de la même façon : `src/data/artwork.ts` regarde sur le disque
+**au moment du build** si `public/images/<dossier>/<nom>.<ext>` existe. Si oui la
+carte affiche la photo, sinon elle affiche son icône dessinée, dans exactement la
+même boîte.
+
+Ce contrôle est fait côté serveur et non par le navigateur, et c'est la seule façon
+de ne pas faire clignoter le repli : demander à la page de charger l'image, d'attraper
+l'erreur et de basculer, c'est montrer l'icône à tout le monde pendant une fraction de
+seconde avant la photo. Ici le HTML est juste du premier coup.
+
+Conséquence pratique : **ajouter une photo demande un nouveau build.** En
+développement (`npm run dev`) elle apparaît au rechargement.
 
 ### 3. Logo
 
@@ -152,46 +173,128 @@ src/
     [locale]/page.tsx             assemblage des sections + données structurées
     [locale]/mentions-legales/    mentions légales et données personnelles
     api/contact/route.ts          validation serveur puis envoi Resend
+    globals.css                   jetons de thème, calques CSS, classes de marque
   proxy.ts                        redirige / vers /fr ou /ar
   components/
     sections/                     une section de page par fichier
     site/                         en-tête, pied de page, sélecteurs
-    ui/                           primitives (bouton, section, reveal, logo, plate, swatch)
+    ui/                           primitives partagées
   data/
     site.ts                       coordonnées de l'atelier
     wilayas.ts                    les 58 wilayas
     realisations.ts               catégories et types (client et serveur)
     realisations-photos.ts        lecture du dossier public/ (serveur uniquement)
+    artwork.ts                    photos facultatives des cartes (serveur uniquement)
   i18n/                           configuration et dictionnaires
   lib/contact-schema.ts           schéma Zod partagé client et serveur
 ```
 
+Les primitives de `ui/` :
+
+| Fichier | Rôle |
+|---|---|
+| `button.tsx` | bouton et lien-bouton, trois variantes |
+| `section.tsx` | espacement vertical et en-tête de section |
+| `reveal.tsx` | apparition au scroll |
+| `word-reveal.tsx` | apparition mot à mot, pour une seule phrase |
+| `tilt-card.tsx` | carte qui s'incline vers le pointeur |
+| `card-media.tsx` | zone média d'une carte : photo ou médaillon d'icône |
+| `logo.tsx` | monogramme et signature |
+| `plate.tsx` | photo avec repli « Photo à venir » |
+| `swatch.tsx` | échantillon de matériau peint au canvas |
+
+### Le calque CSS de `globals.css`
+
+Tout ce que le fichier définit vit dans `@layer base` ou `@layer components`, et
+ce n'est pas cosmétique. Tailwind émet ses utilitaires dans `@layer utilities`,
+et **une règle hors calque bat n'importe quel calque**, quelle que soit la
+spécificité de l'utilitaire.
+
+Écrit hors calque, le simple `* { border-color: var(--line) }` neutralisait donc
+en silence *toutes* les couleurs de bordure du site : `border-gold`,
+`border-white/25`, `border-transparent`, aucune ne s'appliquait. De même,
+`.display` battait tous les `tracking-`, `font-` et `leading-` posés à côté
+d'elle. Les mettre en calque remet les utilitaires au-dessus, ce qui est
+précisément leur raison d'être.
+
+Seul le bloc `prefers-reduced-motion` de fin reste hors calque, volontairement :
+c'est une trappe de secours et elle doit gagner.
+
+### Les animations
+
+Trois mécanismes, pas un de plus, et aucun WebGL.
+
+**L'apparition au scroll** (`ui/reveal.tsx`) établit l'ordre de lecture : une
+page longue arrive une idée à la fois plutôt que d'un bloc.
+
+**L'inclinaison des cartes** (`ui/tilt-card.tsx`) est la seule « 3D » du site :
+de la perspective CSS réelle, avec un reflet doré qui suit le pointeur. Un
+atelier vend des objets qu'on a envie de retourner dans la main, et une carte
+qui répond au pointeur le dit bien mieux qu'un canvas — pour quelques centaines
+d'octets au lieu d'un demi-mégaoctet de moteur de rendu.
+
+La position du pointeur est écrite dans des *motion values*, pas dans un état
+React. Un état re-rendrait toute la carte à chaque mouvement de souris ; les
+motion values sont lues directement sur le nœud DOM par la frame d'animation,
+si bien qu'une grille entière ne coûte rien à survoler.
+
+**Le tracé au scroll** (`sections/process-timeline.tsx`) relie la ligne des
+étapes à la position de défilement. Quatre paragraphes numérotés disent la même
+chose, mais la disent d'un coup ; faire *durer* la section est le message
+honnête : c'est un déroulé avec un ordre et une durée, pas un menu.
+
+Chacun se désarme sous `prefers-reduced-motion`, et toujours de la même façon :
+les transformations ne sont pas appliquées, et les valeurs CSS par défaut
+laissent la ligne tracée et les jalons allumés. Jamais de second chemin de code
+à maintenir juste.
+
 ### La bobine du hero
 
-Le hero est coupé en deux panneaux côte à côte : la promesse et ses deux boutons
-d'un côté, les vidéos de l'atelier de l'autre. Le texte est délibérément *à côté*
-du film et non par-dessus : un texte posé sur une image animée exige un voile lourd
-pour rester lisible, qui ternit la vidéo et échoue quand même dès qu'un plan passe
-sur une cuisine claire.
+La vidéo court d'un bord à l'autre et la promesse est posée par-dessus.
 
-`sections/hero-video.tsx` enchaîne les six clips de `public/videos/` en boucle, sans
-son. Il utilise **deux** éléments `<video>` : l'un joue pendant que l'autre décode
-déjà le clip suivant, ce qui permet à l'enchaînement d'être instantané. Un seul
-élément obligerait à changer son `src` à chaque fin de clip, et le navigateur
-détruit l'image courante avant d'avoir décodé la suivante — chaque passage
-clignoterait en noir.
+Du texte sur une image animée est le cas difficile de la typographie web : le
+fond change de luminosité plusieurs fois par seconde, on ne peut donc pas
+vérifier le contraste une fois pour toutes. Trois voiles s'en chargent — un qui
+porte l'en-tête, un en flaque sous le texte, un qui ancre le bas — et le titre
+est composé dans le crème de la charte plutôt qu'en blanc pur, ce qui le garde
+lisible sans délaver la vidéo dessous.
+
+`sections/hero-video.tsx` enchaîne les six clips de `public/videos/` en boucle,
+sans son. Il utilise **deux** éléments `<video>` : l'un joue pendant que l'autre
+décode déjà le clip suivant, ce qui permet à l'enchaînement d'être instantané.
+Un seul élément obligerait à changer son `src` à chaque fin de clip, et le
+navigateur détruit l'image courante avant d'avoir décodé la suivante — chaque
+passage clignoterait en noir.
 
 Le fondu enchaîné impose alors un ordre : l'élément sortant doit conserver sa
 dernière image *sous* l'entrant pendant toute la durée du fondu, et ne peut être
-masqué puis rechargé qu'une fois celui-ci terminé. C'est le rôle de l'état `stale`.
+masqué puis rechargé qu'une fois celui-ci terminé. C'est le rôle de l'état
+`stale`.
 
 Le second élément ne télécharge rien tant que le premier clip n'a pas commencé :
 personne ne doit payer deux films pour lire un titre.
 
 Le son est coupé par construction et aucun bouton ne permet de l'activer. C'est
-aussi ce qui autorise le navigateur à lancer la lecture automatiquement. Un bouton
-pause reste accessible en bas du cadre, et `prefers-reduced-motion` met la bobine à
-l'arrêt sur sa première image.
+aussi ce qui autorise le navigateur à lancer la lecture automatiquement. Un
+bouton pause reste accessible en bas du cadre, et `prefers-reduced-motion` met
+la bobine à l'arrêt sur sa première image.
+
+### L'en-tête au-dessus de la vidéo
+
+Le thème de la page ne s'applique pas par-dessus une vidéo : quel que soit le
+mode choisi, le film dessous est sombre. Plutôt que de faire descendre une prop
+« clair » à travers l'en-tête, le logo, le sélecteur de langue et le bouton de
+thème, la barre du haut **redéfinit les jetons** que tous lisent déjà
+(`--fg`, `--line`, `--gold`…). C'est la classe `.on-media` dans `globals.css`.
+
+Tout ce qui est à l'intérieur passe en clair-sur-sombre, et revient à la normale
+dès que la page défile et que la barre prend son fond opaque. La classe est
+posée sur la barre elle-même et non sur `<header>` : le menu mobile est un frère
+dans le même élément et doit garder les vraies couleurs de la page.
+
+L'en-tête ne fait cela que sur l'accueil, et seulement tant que la page n'a pas
+défilé — ailleurs il est posé sur le fond de page et garde ses propres couleurs.
+C'est ce qui en fait une classe et non un thème.
 
 ### La galerie de réalisations
 
@@ -218,12 +321,25 @@ La visionneuse est rendue dans un portail vers `<body>` : elle doit échapper au
 contexte d'empilement de la section, où les transformations d'apparition au scroll
 l'emprisonneraient.
 
+### Les cartes de matériaux
+
+La description est repliée jusqu'à l'arrivée du pointeur, ce qui permet à quatre
+panneaux de tenir côte à côte comme quatre *échantillons* plutôt que comme
+quatre paragraphes. Le nom et la finition restent visibles, parce que c'est ce
+qu'on cherche du regard.
+
+Deux règles empêchent que ce soit un piège. Un appareil sans survol n'a rien
+pour survoler : il reçoit le texte déplié dès le départ (`@media (hover: none)`).
+Et le texte n'est jamais retiré du DOM, seulement rogné : un lecteur d'écran lit
+les quatre cartes en entier.
+
 ### Échantillons de matériaux
 
-Les quatre vignettes de la section « Matériaux d'exception » sont peintes sur un
-canvas 2D (`ui/swatch.tsx`) : mat pour la mélamine, réflexions dures pour le high
-gloss, fibre compressée pour le MDF, brossé pour la quincaillerie. Pas de photo sous
-licence, pas de téléchargement.
+Sans photo dans `public/images/materiaux/`, les quatre vignettes de la section
+« Matériaux d'exception » sont peintes sur un canvas 2D (`ui/swatch.tsx`) : mat
+pour la mélamine, réflexions dures pour le high gloss, fibre compressée pour le
+MDF, brossé pour la quincaillerie. Pas de photo sous licence, pas de
+téléchargement.
 
 ### Performance
 
@@ -233,7 +349,14 @@ licence, pas de téléchargement.
   qu'une fois la première lancée.
 - Les photos passent par `next/image` : AVIF et WebP générés à la volée, et le
   cadrage `sizes` évite de servir une image pleine largeur pour une vignette.
-- `prefers-reduced-motion` stoppe la bobine et les apparitions au scroll.
+- Les sections restent des composants serveur ; seules les parties réellement
+  interactives (bobine, galerie, carte inclinable, tracé au scroll) partent dans
+  le bundle du navigateur.
+- L'inclinaison des cartes ne déclenche aucun rendu React, et ne s'arme pas du
+  tout au doigt : un pointeur tactile ne survole pas, et incliner une carte au
+  moment où on la touche ne fait que gêner la lecture.
+- `prefers-reduced-motion` stoppe la bobine, les apparitions au scroll,
+  l'inclinaison et le tracé de la ligne des étapes.
 
 ### Bilinguisme et sens de lecture
 
