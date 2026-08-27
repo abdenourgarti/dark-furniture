@@ -5,13 +5,28 @@ import {
   EnvelopeSimple,
   InstagramLogo,
   FacebookLogo,
+  TiktokLogo,
 } from "@phosphor-icons/react/dist/ssr";
+import type { Icon } from "@phosphor-icons/react";
 
 import type { Locale } from "@/i18n/config";
 import type { Dictionary } from "@/i18n";
 import { site } from "@/data/site";
 import { Logo } from "@/components/ui/logo";
 import { FooterQuick } from "./footer-quick";
+
+/*
+  `href: string`, annotated rather than inferred, and that annotation is load
+  bearing. site.ts is `as const`, so left to itself each href would be typed as
+  the exact URL written there today — and the moment all three accounts are
+  filled in, TypeScript would rule that comparing them to "" can never be true
+  and fail the build. The empty check has to outlive the values it guards.
+*/
+const networks: { href: string; label: string; icon: Icon }[] = [
+  { href: site.social.instagram, label: "Instagram", icon: InstagramLogo },
+  { href: site.social.facebook, label: "Facebook", icon: FacebookLogo },
+  { href: site.social.tiktok, label: "TikTok", icon: TiktokLogo },
+];
 
 export function Footer({ locale, t }: { locale: Locale; t: Dictionary }) {
   const columnTitle =
@@ -56,24 +71,23 @@ export function Footer({ locale, t }: { locale: Locale; t: Dictionary }) {
           <div>
             <h3 className={columnTitle}>{t.footer.mediaTitle}</h3>
             <div className="mt-6 flex items-center gap-3">
-              <a
-                href={site.social.instagram}
-                aria-label="Instagram"
-                target="_blank"
-                rel="noreferrer"
-                className={socialClass}
-              >
-                <InstagramLogo size={18} weight="light" />
-              </a>
-              <a
-                href={site.social.facebook}
-                aria-label="Facebook"
-                target="_blank"
-                rel="noreferrer"
-                className={socialClass}
-              >
-                <FacebookLogo size={18} weight="light" />
-              </a>
+              {/* Same rule as the /liens card: an account that has not been
+                  filled in yet is left out, rather than linked to the network's
+                  own home page. */}
+              {networks
+                .filter((network) => network.href !== "")
+                .map(({ href, label, icon: Glyph }) => (
+                  <a
+                    key={label}
+                    href={href}
+                    aria-label={label}
+                    target="_blank"
+                    rel="noreferrer"
+                    className={socialClass}
+                  >
+                    <Glyph size={18} weight="light" />
+                  </a>
+                ))}
             </div>
 
             <ul className="mt-8 space-y-4 text-sm text-fg-muted">

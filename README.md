@@ -118,7 +118,64 @@ façon, autant que ce soit le noir de la charte. La déclaration est dans
 
 Si le logo change, ces quatre fichiers sont à régénérer depuis le nouveau PNG.
 
-### 4. Envoi des e-mails (Resend)
+### 4. La carte de liens et son QR code
+
+`/liens` est une page à part : le logo, le nom, et une pile de boutons vers les
+réseaux, le téléphone, l'e-mail et l'itinéraire. C'est la page vers laquelle
+pointe le QR code imprimé sur les cartes de visite, la vitrine ou le camion.
+
+**Un seul fichier à renseigner : `src/data/site.ts`.** La page ne contient
+aucune URL en dur, elle lit tout depuis ce fichier.
+
+| Clé | Ce qu'elle alimente |
+|---|---|
+| `social.instagram` | bouton Instagram |
+| `social.facebook` | bouton Facebook |
+| `social.tiktok` | bouton TikTok |
+| `website` | bouton « Notre site web » |
+| `phone` + `phoneHref` | bouton « Appeler l'atelier » |
+| `email` | bouton « Nous écrire » |
+| `geo` | bouton « Itinéraire » |
+
+**Une valeur laissée à `""` masque son bouton.** C'est délibéré : le QR code
+finit imprimé sur quelque chose de physique, où un lien mort ne se corrige plus.
+Tant que le compte TikTok n'existe pas, mieux vaut pas de bouton qu'un bouton
+qui ouvre la page d'accueil de TikTok. Le pied de page du site principal suit la
+même règle.
+
+> Si vous ajoutez une clé et voulez pouvoir la vider plus tard, tapez le tableau
+> qui la lit avec `href: string` explicite, comme `networks` dans
+> `site/footer.tsx`. `site.ts` est `as const` : sans cette annotation, une fois
+> toutes les valeurs remplies TypeScript juge que la comparer à `""` ne peut
+> jamais être vrai, et casse le build — précisément au moment où vous finissez
+> de tout renseigner.
+
+**Générer le QR code.** Prenez l'URL de production suivie de `/liens` :
+
+```
+https://votre-domaine.dz/liens
+```
+
+et collez-la dans n'importe quel générateur en ligne. Trois points valent d'être
+sus :
+
+- Encodez l'adresse **de production**, jamais `localhost:3000/liens` : un QR
+  code sur `localhost` ne fonctionne sur aucun téléphone.
+- Le chemin est volontairement court et sans préfixe de langue. Le proxy laisse
+  `/liens` passer sans le rediriger vers `/fr/liens` (voir `unlocalised` dans
+  `src/proxy.ts`) : moins de caractères donne un motif plus grossier, donc plus
+  tolérant à l'impression et aux scans de travers.
+- Demandez un **SVG** plutôt qu'un PNG si le générateur le propose, et une
+  correction d'erreur **Q** ou **H** si vous comptez poser le logo au centre.
+
+L'URL restant fixe, tout se met à jour sans réimprimer quoi que ce soit : changer
+un lien dans `site.ts` et redéployer suffit. C'est tout l'intérêt de pointer le
+code vers votre page plutôt que directement vers un compte Instagram.
+
+La carte est en `noindex` : elle se scanne, elle ne se cherche pas, et elle n'a
+pas à concurrencer le vrai site sur le nom de l'atelier.
+
+### 5. Envoi des e-mails (Resend)
 
 Les demandes partent vers l'adresse définie par `CONTACT_TO`, par défaut
 `dark.furnitures@gmail.com`.
@@ -145,7 +202,7 @@ Le champ « E-mail » du formulaire est facultatif ; quand il est rempli, il est
 utilisé comme `Reply-To`. La clé placée dans `.env.local` est restreinte à l'envoi,
 ce qui est le bon réglage. `.env*` est ignoré par git, sauf `.env.example`.
 
-### 5. Contenu et traductions
+### 6. Contenu et traductions
 
 Tout le texte visible vit dans deux fichiers, sans exception :
 
@@ -173,14 +230,15 @@ src/
     [locale]/page.tsx             assemblage des sections + données structurées
     [locale]/mentions-legales/    mentions légales et données personnelles
     api/contact/route.ts          validation serveur puis envoi Resend
+    liens/                        carte de liens du QR code (hors du site bilingue)
     globals.css                   jetons de thème, calques CSS, classes de marque
-  proxy.ts                        redirige / vers /fr ou /ar
+  proxy.ts                        redirige / vers /fr ou /ar, sauf /liens
   components/
     sections/                     une section de page par fichier
     site/                         en-tête, pied de page, sélecteurs
     ui/                           primitives partagées
   data/
-    site.ts                       coordonnées de l'atelier
+    site.ts                       coordonnées, réseaux sociaux, site web
     wilayas.ts                    les 58 wilayas
     realisations.ts               catégories et types (client et serveur)
     realisations-photos.ts        lecture du dossier public/ (serveur uniquement)

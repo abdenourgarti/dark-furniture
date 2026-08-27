@@ -24,9 +24,22 @@ export const site = {
   /** Showroom coordinates. Replace with the exact pin, then the embed follows automatically. */
   geo: { lat: 36.7538, lng: 3.0588 },
 
+  /**
+   * Public address of the site itself, used by the /liens card so a visitor who
+   * scanned the QR code can reach the full website. Fill it in at deployment.
+   */
+  website: "https://dark-furniture.vercel.app/",
+
+  /*
+    Anything left as an empty string is treated as "not set yet": the footer and
+    the /liens card both skip it rather than shipping a button that lands on a
+    social network's home page. That matters most for the card, which ends up
+    printed on something physical, where a dead link cannot be corrected.
+  */
   social: {
     instagram: "https://instagram.com/",
     facebook: "https://facebook.com/",
+    tiktok: "",
   },
 } as const;
 
