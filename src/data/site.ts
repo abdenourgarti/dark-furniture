@@ -39,7 +39,7 @@ export const site = {
   social: {
     instagram: "https://instagram.com/dark_furnitures",
     facebook: "https://facebook.com/share/19jPoQSFcB/?mibextid=wwXlfr",
-    tiktok: "https://tiktok.com/@dark_furniture",
+    tiktok: "https://www.tiktok.com/@dark__furniture?_r=1&_t=ZS-9A5qPSwfGJW",
   },
 } as const;
 
