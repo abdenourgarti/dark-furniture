@@ -7,13 +7,13 @@ export const site = {
   email: "dark.furnitures@gmail.com",
 
   // TODO: replace with the real showroom details before going live.
-  phone: "+213 000 00 00 00",
-  phoneHref: "+21300000000",
-  whatsapp: "21300000000",
+  phone: "+213 663190897",
+  phoneHref: "+213663190897",
+  whatsapp: "213663190897",
 
   address: {
-    fr: "Adresse du showroom, Alger, Algérie",
-    ar: "عنوان المعرض، الجزائر العاصمة، الجزائر",
+    fr: "Hay Thawra Bouira",
+    ar: "حي الثورة، البويرة",
   },
 
   hours: {
@@ -22,7 +22,7 @@ export const site = {
   },
 
   /** Showroom coordinates. Replace with the exact pin, then the embed follows automatically. */
-  geo: { lat: 36.7538, lng: 3.0588 },
+  geo: { lat: 36.3809503, lng: 3.8871824 },
 
   /**
    * Public address of the site itself, used by the /liens card so a visitor who
@@ -37,9 +37,9 @@ export const site = {
     printed on something physical, where a dead link cannot be corrected.
   */
   social: {
-    instagram: "https://instagram.com/",
-    facebook: "https://facebook.com/",
-    tiktok: "",
+    instagram: "https://instagram.com/dark_furnitures",
+    facebook: "https://facebook.com/share/19jPoQSFcB/?mibextid=wwXlfr",
+    tiktok: "https://tiktok.com/@dark_furniture",
   },
 } as const;
 
